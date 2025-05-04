@@ -1,0 +1,19 @@
+diff --git a/node_modules/vue-material-design-icons/CloseCircle.vue b/node_modules/vue-material-design-icons/CloseCircle.vue
+index a7bab17..89a1064 100644
+--- a/node_modules/vue-material-design-icons/CloseCircle.vue
++++ b/node_modules/vue-material-design-icons/CloseCircle.vue
+@@ -1,12 +1,9 @@
+ <template>
+-  <span v-bind="$attrs"
+-        :aria-hidden="title ? null : 'true'"
++  <span :aria-hidden="title ? null : 'true'"
+         :aria-label="title"
+-        class="material-design-icon close-circle-icon"
+-        role="img"
+         @click="$emit('click', $event)">
+     <svg :fill="fillColor"
+-         class="material-design-icon__svg"
++         style="display: block"
+          :width="size"
+          :height="size"
+          viewBox="0 0 24 24">
