@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { BaseEvent, Event } from '../types.ts';
+import type { BaseEvent, Event } from '../types.ts';
 import { store } from '../store.ts';
 const { event, allEvents } = defineProps<{
   event: Event;
@@ -56,7 +56,7 @@ function updateSelected(id: number) {
         <input
           type="checkbox"
           :value="event.id"
-          :id="event.id"
+          :id="event.id.toString()"
           @change="() => updateSelected(event.id)"
         />
         {{ event.name }}

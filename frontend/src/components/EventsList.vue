@@ -3,7 +3,7 @@ import EventComponent from './Event.vue';
 import Button from './Button.vue';
 
 import axios from 'axios';
-import { Event } from '../types.ts';
+import type { Event } from '../types.ts';
 import { ref } from 'vue';
 
 const events = ref<Event[]>([]);

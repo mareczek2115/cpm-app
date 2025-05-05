@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import CloseCircle from 'vue-material-design-icons/CloseCircle.vue';
 import Multiselect from './Multiselect.vue';
+import type { Event, BaseEvent } from '../types';
 
 const emit = defineEmits<{
   (e: 'remove-event', id: number): void;
