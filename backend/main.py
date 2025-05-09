@@ -26,8 +26,8 @@ async def root():
 
 @app.post("/api/cpm")
 def post_cpm(events: List[Event]):
-    calculate_cpm(events)
-    return {"status": "ok"}
+    result = calculate_cpm(events)
+    return result
 
 def calculate_cpm(events: List[Event]):
     nodes = []
@@ -91,8 +91,8 @@ def calculate_cpm(events: List[Event]):
     for node in nodes:
         node.reserve = node.late_start - node.early_start
 
-    for node in nodes:
-        print(node)
+    # for node in nodes:
+    #     print(node)
 
     critical_path = []
 
@@ -101,3 +101,7 @@ def calculate_cpm(events: List[Event]):
             critical_path.append(node.id)
 
     print(critical_path)
+
+    dict_nodes = [node.dict(exclude={"successors"}) for node in nodes]
+    print(dict_nodes)
+    return dict_nodes
