@@ -14,7 +14,6 @@ defineProps<{
 .button {
   display: inline-block;
   padding: 12px 24px;
-  font-family: 'Inter', 'Arial', sans-serif;
   font-size: 13px;
   font-weight: 600;
   color: #fff;

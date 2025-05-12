@@ -3,40 +3,40 @@ import EventComponent from './Event.vue';
 import Button from './Button.vue';
 
 import axios from 'axios';
-import type { Event } from '../types.ts';
-import { ref } from 'vue';
-
-const events = ref<Event[]>([]);
+import type { Node } from '../types/types.ts';
+import { store } from '../store.ts';
 
 const addNewEvent = () => {
-  events.value.push({
-    id: events.value.length,
-    name: `Zdarzenie nr ${events.value.length + 1}`,
+  store.events.value.push({
+    id: store.events.value.length,
+    name: `Zdarzenie nr ${store.events.value.length + 1}`,
     duration: 0,
     predecessors: [],
   });
 };
 
 const removeEvent = (id: number) => {
-  const eventIndex = events.value.findIndex(event => event.id === id);
+  const eventIndex = store.events.value.findIndex(event => event.id === id);
 
-  events.value.splice(eventIndex, 1);
+  store.events.value.splice(eventIndex, 1);
 };
 
 const fetchCriticalPath = async () => {
   try {
-    if (events.value.some(e => Number.isNaN(Number(e.duration))))
+    if (store.events.value.some(e => Number.isNaN(Number(e.duration))))
       throw new Error('Czas trwania musi być liczbą!');
 
-    const res = await axios.post(
+    const res = await axios.post<Node[]>(
       'http://localhost:8000/api/cpm',
-      JSON.stringify(events.value),
+      JSON.stringify(store.events.value),
       {
         headers: {
           'Content-Type': 'application/json',
         },
       }
     );
+
+    store.nodes.value = res.data;
   } catch (error) {
     if (error instanceof Error) alert(error.message);
   }
@@ -58,11 +58,11 @@ const fetchCriticalPath = async () => {
     </div>
 
     <EventComponent
-      v-for="event in events"
+      v-for="event in store.events.value"
       :key="event.id"
       :event="event"
       :allEvents="
-        events
+        store.events.value
           .filter(e => e.id !== event.id)
           .map(e => {
             const { id, name } = e;

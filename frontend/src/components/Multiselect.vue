@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import type { BaseEvent, Event } from '../types.ts';
+import type { BaseEvent, Event } from '../types/types.ts';
 import { store } from '../store.ts';
 const { event, allEvents } = defineProps<{
   event: Event;
@@ -52,14 +52,15 @@ function updateSelected(id: number) {
   <div class="custom-multiselect">
     <div class="selected" @click="toggleDropdown">Wybierz opcje ▼</div>
     <div class="dropdown" v-show="dropdownVisible">
-      <label v-for="event in allEvents" :key="event.id">
+      <label v-for="base in allEvents" :key="base.id">
         <input
           type="checkbox"
-          :value="event.id"
-          :id="event.id.toString()"
-          @change="() => updateSelected(event.id)"
+          :checked="event.predecessors.includes(base.id)"
+          :value="base.id"
+          :id="base.id.toString()"
+          @change="() => updateSelected(base.id)"
         />
-        {{ event.name }}
+        {{ base.name }}
       </label>
     </div>
   </div>
