@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import EventsList from './components/EventsList.vue';
-import NodesTable from './components/NodesTable.vue';
+import CriticalPathView from './components/CriticalPathView.vue';
 
 import { store } from './store';
 
@@ -31,8 +31,11 @@ function switchViews(target: ViewTarget) {
       ⬅️
     </div>
 
-    <EventsList v-if="!showNodesTable" />
-    <NodesTable v-if="showNodesTable" />
+    <EventsList
+      v-if="!showNodesTable"
+      @show-table="() => switchViews('Table')"
+    />
+    <CriticalPathView v-if="showNodesTable" />
   </div>
 </template>
 

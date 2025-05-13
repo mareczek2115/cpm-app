@@ -5,38 +5,50 @@ import Button from './Button.vue';
 import axios from 'axios';
 import type { Node } from '../types/types.ts';
 import { store } from '../store.ts';
+import { areEventsEqual } from '../utils.ts';
+
+const { value: currentEvents } = store.currentEvents;
+
+const { originalEvents } = store;
+
+const emit = defineEmits(['showTable']);
 
 const addNewEvent = () => {
-  store.events.value.push({
-    id: store.events.value.length,
-    name: `Zdarzenie nr ${store.events.value.length + 1}`,
+  currentEvents.push({
+    id: currentEvents.length,
+    name: `Zdarzenie nr ${currentEvents.length + 1}`,
     duration: 0,
     predecessors: [],
   });
 };
 
 const removeEvent = (id: number) => {
-  const eventIndex = store.events.value.findIndex(event => event.id === id);
+  const eventIndex = currentEvents.findIndex(event => event.id === id);
 
-  store.events.value.splice(eventIndex, 1);
+  currentEvents.splice(eventIndex, 1);
 };
 
 const fetchCriticalPath = async () => {
   try {
-    if (store.events.value.some(e => Number.isNaN(Number(e.duration))))
+    if (currentEvents.some(e => Number.isNaN(Number(e.duration))))
       throw new Error('Czas trwania musi być liczbą!');
 
-    const res = await axios.post<Node[]>(
-      'http://localhost:8000/api/cpm',
-      JSON.stringify(store.events.value),
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    if (!areEventsEqual(currentEvents, originalEvents.value)) {
+      const res = await axios.post<Node[]>(
+        'http://localhost:8000/api/cpm',
+        JSON.stringify(currentEvents),
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-    store.nodes.value = res.data;
+      store.nodes.value = res.data;
+      originalEvents.value = [...currentEvents];
+    }
+
+    emit('showTable');
   } catch (error) {
     if (error instanceof Error) alert(error.message);
   }
@@ -58,11 +70,11 @@ const fetchCriticalPath = async () => {
     </div>
 
     <EventComponent
-      v-for="event in store.events.value"
+      v-for="event in currentEvents"
       :key="event.id"
       :event="event"
       :allEvents="
-        store.events.value
+        currentEvents
           .filter(e => e.id !== event.id)
           .map(e => {
             const { id, name } = e;
