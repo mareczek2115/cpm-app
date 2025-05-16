@@ -2,8 +2,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from models import Event, CpmNode
 from typing import List
+from fastapi.staticfiles import StaticFiles
+from graphviz import Digraph
+import uuid
+import os
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 origins = [
     'http://localhost:5173',
@@ -96,12 +101,66 @@ def calculate_cpm(events: List[Event]):
 
     critical_path = []
 
+    edges = []
+
     for node in nodes:
         if node.reserve == 0:
             critical_path.append(node.id)
+        
+        if len(node.predecessors) != 0:
+            for predecessor in node.predecessors:
+                
+                if(node.reserve == 0 and nodes[predecessor].reserve == 0):
+                    edge_tuple = (predecessor, node.id, '#43a61c')
+                    edges.append(edge_tuple)
+                else:
+                    edge_tuple = (predecessor, node.id, 'black')
+                    edges.append(edge_tuple)
 
-    print(critical_path)
+
+    # print(critical_path)
 
     dict_nodes = [node.dict(exclude={"successors"}) for node in nodes]
-    print(dict_nodes)
-    return dict_nodes
+    # print(dict_nodes)
+
+    image_url = generate_graph(dict_nodes, edges)
+    print(image_url)
+    return dict_nodes, {"image_url":image_url}
+
+
+
+def generate_graph(nodes_data, edges):
+    dot = Digraph(comment='cpm-graph', format='png')
+    dot.attr(rankdir='LR') 
+    dot.attr(dpi="900")
+
+    for i, node in enumerate(nodes_data):
+        label = f"""<
+        <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="2">
+            <TR>
+                <TD>ES: {node.get('early_start', '')}</TD>
+                <TD>T: {node.get('duration', '')}</TD>
+                <TD>EF: {node.get('early_finish', '')}</TD>
+            </TR>
+            <TR>
+                <TD COLSPAN="3"><B>{node.get('name', '')}</B></TD>
+            </TR>
+            <TR>
+                <TD>LS: {node.get('late_start', '')}</TD>
+                <TD>R: {node.get('reserve', '')}</TD>
+                <TD>LF: {node.get('late_finish', '')}</TD>
+            </TR>
+
+        </TABLE>
+        >"""
+        dot.node(str(i), label=label, shape='none')
+
+
+    for start, end, color in edges:
+        dot.edge(str(start), str(end), color=color)
+
+    u = uuid.uuid4()
+    path = os.path.join('static', f'{u}')
+    dot.render(path)
+    full_url = 'http://localhost:8000/' +'static/' +f'{u}.png'
+    return full_url
