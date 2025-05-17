@@ -39,12 +39,15 @@ watch(dropdownVisible, val => {
 });
 
 function updateSelected(id: number) {
-  if (selected.value.includes(id)) {
-    selected.value = selected.value.filter(v => v !== id);
+  const index = selected.value.indexOf(id);
+
+  if (index !== -1) {
+    selected.value.splice(index, 1);
   } else {
     selected.value.push(id);
   }
-  event.predecessors = selected.value;
+
+  event.predecessors.splice(0, event.predecessors.length, ...selected.value);
 }
 </script>
 

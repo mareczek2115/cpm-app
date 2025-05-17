@@ -3,7 +3,6 @@ import type { Event, Node } from './types/types';
 
 export const store = {
   openedMultiselectId: ref<number | null>(null),
-  // startingEvent: ref<number | undefined>(),
   originalEvents: ref<Event[]>([]),
   currentEvents: ref<Event[]>([]),
   nodes: ref<Node[]>([]),
