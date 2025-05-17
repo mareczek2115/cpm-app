@@ -10,11 +10,11 @@ class Event(BaseModel):
 
 
 class CpmNode(Event):
-    early_start: Optional[int] = None
-    early_finish: Optional[int] = None
-    late_start: Optional[int] = None
-    late_finish: Optional[int] = None
-    reserve: Optional[int] = None
+    early_start: int = 0
+    early_finish: int = 0
+    late_start: int = 0
+    late_finish: int = 0
+    reserve: int = 0
     successors: List[int] = []
 
     def __init__(self, **kwargs):

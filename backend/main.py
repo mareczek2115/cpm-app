@@ -35,7 +35,7 @@ def post_cpm(events: List[Event]):
     return result
 
 def calculate_cpm(events: List[Event]):
-    nodes = []
+    nodes: List[CpmNode] = []
     for event in events:
         node = CpmNode(**event.model_dump())
         nodes.append(node)
@@ -57,7 +57,6 @@ def calculate_cpm(events: List[Event]):
             finish_node.predecessors.append(node.id)
     
     nodes.append(finish_node)
-    
 
     #calculate step ahead
     for node in nodes:
@@ -125,7 +124,7 @@ def calculate_cpm(events: List[Event]):
 
     image_url = generate_graph(dict_nodes, edges)
     print(image_url)
-    return dict_nodes, {"image_url":image_url}
+    return {"nodes": dict_nodes, "image_url":image_url}
 
 
 
@@ -138,17 +137,17 @@ def generate_graph(nodes_data, edges):
         label = f"""<
         <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="2">
             <TR>
-                <TD>ES: {node.get('early_start', '')}</TD>
-                <TD>T: {node.get('duration', '')}</TD>
-                <TD>EF: {node.get('early_finish', '')}</TD>
+                <TD>{node.get('early_start', '')}</TD>
+                <TD>{node.get('duration', '')}</TD>
+                <TD>{node.get('early_finish', '')}</TD>
             </TR>
             <TR>
                 <TD COLSPAN="3"><B>{node.get('name', '')}</B></TD>
             </TR>
             <TR>
-                <TD>LS: {node.get('late_start', '')}</TD>
-                <TD>R: {node.get('reserve', '')}</TD>
-                <TD>LF: {node.get('late_finish', '')}</TD>
+                <TD>{node.get('late_start', '')}</TD>
+                <TD>{node.get('reserve', '')}</TD>
+                <TD>{node.get('late_finish', '')}</TD>
             </TR>
 
         </TABLE>
