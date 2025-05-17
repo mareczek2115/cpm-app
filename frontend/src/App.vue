@@ -17,7 +17,9 @@ function switchViews(target: ViewTarget) {
 <template>
   <div id="app-lower">
     <div
-      v-if="store.nodes.value.length > 0 && !showNodesTable"
+      v-if="
+        store.nodes.value && store.nodes.value.length > 0 && !showNodesTable
+      "
       class="arrow-right"
       @click="() => switchViews('Table')"
     >
