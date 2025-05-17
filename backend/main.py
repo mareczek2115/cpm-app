@@ -86,14 +86,14 @@ def calculate_cpm(events: List[Event]):
             min_next_late_start = node.early_finish
 
         node.late_finish = min_next_late_start
-        node.late_start = node.late_finish - node.duration
+        node.late_start = max(node.late_finish - node.duration, 0)
         
     #delete finish node
     nodes.pop()
 
     #calculate reserve
     for node in nodes:
-        node.reserve = node.late_start - node.early_start
+        node.reserve = max(node.late_start - node.early_start, 0)
 
     # for node in nodes:
     #     print(node)
@@ -109,7 +109,7 @@ def calculate_cpm(events: List[Event]):
         if len(node.predecessors) != 0:
             for predecessor in node.predecessors:
                 
-                if(node.reserve == 0 and nodes[predecessor].reserve == 0):
+                if node.reserve == 0 and nodes[predecessor].reserve == 0:
                     edge_tuple = (predecessor, node.id, '#43a61c')
                     edges.append(edge_tuple)
                 else:
