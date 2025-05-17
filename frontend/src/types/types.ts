@@ -8,13 +8,11 @@ export interface Event extends BaseEvent {
   predecessors: Array<number>;
 }
 
-type OptionalNumber = number | null;
-
 export interface Node extends Event {
-  early_start: OptionalNumber;
-  early_finish: OptionalNumber;
-  late_start: OptionalNumber;
-  late_finish: OptionalNumber;
-  reserve: OptionalNumber;
+  early_start: number;
+  early_finish: number;
+  late_start: number;
+  late_finish: number;
+  reserve: number;
   successors: Array<number>;
 }
