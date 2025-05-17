@@ -6,6 +6,7 @@ import axios from 'axios';
 import type { Node } from '../types/types.ts';
 import { store } from '../store.ts';
 import { areEventsEqual, hasCycle } from '../utils.ts';
+import cloneDeep from 'lodash/cloneDeep';
 
 interface Response {
   nodes: Node[];
@@ -63,7 +64,7 @@ const fetchCriticalPath = async () => {
 
       store.nodes.value = res.data.nodes;
       store.graph_url.value = res.data.image_url;
-      originalEvents.value = currentEvents.value.map(e => ({ ...e }));
+      originalEvents.value = cloneDeep(currentEvents.value);
     }
 
     emit('showTable');

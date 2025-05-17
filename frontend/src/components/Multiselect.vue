@@ -8,7 +8,7 @@ const { event, allEvents } = defineProps<{
 }>();
 
 const dropdownVisible = ref(false);
-const selected = ref<number[]>([]);
+const selected = ref<number[]>(event.predecessors.map(p => p));
 
 function toggleDropdown() {
   if (store.openedMultiselectId.value === event.id) {
@@ -41,10 +41,10 @@ watch(dropdownVisible, val => {
 function updateSelected(id: number) {
   const index = selected.value.indexOf(id);
 
-  if (index !== -1) {
-    selected.value.splice(index, 1);
-  } else {
+  if (index === -1) {
     selected.value.push(id);
+  } else {
+    selected.value.splice(index, 1);
   }
 
   event.predecessors.splice(0, event.predecessors.length, ...selected.value);
