@@ -5,38 +5,55 @@ import Button from './Button.vue';
 import axios from 'axios';
 import type { Node } from '../types/types.ts';
 import { store } from '../store.ts';
-import { areEventsEqual } from '../utils.ts';
+import { areEventsEqual, hasCycle } from '../utils.ts';
 
-const { value: currentEvents } = store.currentEvents;
+interface Response {
+  nodes: Node[];
+  image_url: string;
+}
 
-const { originalEvents } = store;
+const { originalEvents, currentEvents } = store;
 
 const emit = defineEmits(['showTable']);
 
 const addNewEvent = () => {
-  currentEvents.push({
-    id: currentEvents.length,
-    name: `Zdarzenie nr ${currentEvents.length + 1}`,
+  currentEvents.value.push({
+    id: currentEvents.value[currentEvents.value.length - 1]?.id + 1 || 0,
+    name: `Zdarzenie nr ${
+      currentEvents.value[currentEvents.value.length - 1]?.id + 2 || 1
+    }`,
     duration: 0,
     predecessors: [],
   });
 };
 
 const removeEvent = (id: number) => {
-  const eventIndex = currentEvents.findIndex(event => event.id === id);
+  const eventIndex = currentEvents.value.findIndex(event => event.id === id);
 
-  currentEvents.splice(eventIndex, 1);
+  currentEvents.value.splice(eventIndex, 1);
+
+  currentEvents.value.forEach(e => {
+    e.predecessors = e.predecessors.filter(p => p !== id);
+  });
 };
 
 const fetchCriticalPath = async () => {
   try {
-    if (currentEvents.some(e => Number.isNaN(Number(e.duration))))
+    currentEvents.value.forEach((e, i) => {
+      e.id = i;
+      e.duration = Number(e.duration);
+    });
+
+    if (currentEvents.value.some(e => Number.isNaN(e.duration)))
       throw new Error('Czas trwania musi być liczbą!');
 
-    if (!areEventsEqual(currentEvents, originalEvents.value)) {
-      const res = await axios.post<Node[]>(
+    if (hasCycle(currentEvents.value))
+      throw new Error('W grafie występuje cykl!');
+
+    if (!areEventsEqual(currentEvents.value, originalEvents.value)) {
+      const res = await axios.post<Response>(
         'http://localhost:8000/api/cpm',
-        JSON.stringify(currentEvents),
+        JSON.stringify(currentEvents.value),
         {
           headers: {
             'Content-Type': 'application/json',
@@ -44,8 +61,9 @@ const fetchCriticalPath = async () => {
         }
       );
 
-      store.nodes.value = res.data;
-      originalEvents.value = [...currentEvents];
+      store.nodes.value = res.data.nodes;
+      store.graph_url.value = res.data.image_url;
+      originalEvents.value = currentEvents.value.map(e => ({ ...e }));
     }
 
     emit('showTable');
